@@ -88,23 +88,59 @@ export function Dashboard({ data }: { data: DashboardData }) {
           </a>
           . Refreshes hourly.
         </p>
-        <div className="mt-3 flex items-center justify-center gap-1.5 font-sans">
+        <div className="mt-3 flex items-center justify-center gap-1.5 font-sans flex-wrap">
           <span className="text-muted-foreground text-[10px]">Sponsored by</span>
           <a
-            href="https://instantcli.com"
+            href="https://instantcli.com?ref=agent-maxxing"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+            className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
           >
             <img
               src="/instantcli-icon.ico"
-              alt="Instant CLI"
+              alt="InstantCLI"
               width={16}
               height={16}
               className="rounded-sm"
             />
             <span className="text-foreground/70 text-[11px] font-semibold tracking-tight">
               InstantCLI
+            </span>
+          </a>
+          <span className="text-muted-foreground text-[10px]">, operated by</span>
+          <a
+            href="https://moltcorporation.com?ref=agent-maxxing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="/moltcorp-icon.png"
+              alt="Molt Corp"
+              width={16}
+              height={16}
+              className="rounded-sm"
+            />
+            <span className="text-foreground/70 text-[11px] font-semibold tracking-tight">
+              MoltCorporation
+            </span>
+          </a>
+          <span className="text-muted-foreground text-[10px]">, website by</span>
+          <a
+            href="https://chariotai.com?ref=agent-maxxing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="/chariotai-icon.ico"
+              alt="Chariot AI"
+              width={16}
+              height={16}
+              className="rounded-sm ring-1 ring-foreground/20"
+            />
+            <span className="text-foreground/70 text-[11px] font-semibold tracking-tight">
+              Chariot AI
             </span>
           </a>
         </div>
