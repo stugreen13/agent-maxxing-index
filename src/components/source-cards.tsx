@@ -31,9 +31,9 @@ function formatCompact(n: number): string {
 }
 
 const SOURCE_COLORS: Record<string, string> = {
-  npm: "var(--chart-1)",
-  pypi: "var(--chart-3)",
-  github_commits: "var(--chart-5)",
+  npm: "var(--chart-3)",
+  pypi: "var(--chart-5)",
+  github_commits: "var(--chart-1)",
 };
 
 function SourceCard({ source }: { source: SourceStats }) {

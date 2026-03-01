@@ -49,33 +49,58 @@ export function InsightsPanel({ data }: { data: DashboardData }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {/* Weekend Effect */}
+      {/* Weekend vs Weekday */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm uppercase tracking-wider">
-            Weekend Effect
+            Weekend vs Weekday
           </CardTitle>
+          <p className="text-muted-foreground text-xs">
+            Average daily activity per source, last 30 days
+          </p>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-xs">Weekday avg</span>
-            <span className="font-semibold tabular-nums text-sm">
-              {formatCompact(aggregate.weekdayAvg)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-xs">Weekend avg</span>
-            <span className="font-semibold tabular-nums text-sm">
-              {formatCompact(aggregate.weekendAvg)}
-            </span>
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-xs">Drop</span>
-            <Badge variant="destructive" className="tabular-nums">
-              -{aggregate.weekendAvgDrop}%
-            </Badge>
-          </div>
+        <CardContent className="space-y-3">
+          {(() => {
+            const sources = [
+              { key: "github" as const, label: "GitHub commits", color: "var(--chart-1)" },
+              { key: "npm" as const, label: "npm downloads", color: "var(--chart-3)" },
+              { key: "pypi" as const, label: "PyPI downloads", color: "var(--chart-5)" },
+            ];
+
+            return sources.map((source) => {
+              const weekdayVals = daily.filter((d) => !d.isWeekend && d[source.key] > 0).map((d) => d[source.key]);
+              const weekendVals = daily.filter((d) => d.isWeekend && d[source.key] > 0).map((d) => d[source.key]);
+              const wdAvg = weekdayVals.length ? Math.round(weekdayVals.reduce((a, b) => a + b, 0) / weekdayVals.length) : 0;
+              const weAvg = weekendVals.length ? Math.round(weekendVals.reduce((a, b) => a + b, 0) / weekendVals.length) : 0;
+              const change = wdAvg > 0 ? Math.round(((weAvg - wdAvg) / wdAvg) * 100) : 0;
+
+              return (
+                <div key={source.key}>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="size-2 rounded-[2px]" style={{ backgroundColor: source.color }} />
+                    <span className="text-xs font-medium">{source.label}</span>
+                  </div>
+                  <div className="flex items-center gap-6 text-xs mb-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground">Mon&ndash;Fri:</span>
+                      <span className="tabular-nums font-medium">{formatCompact(wdAvg)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground">Sat&ndash;Sun:</span>
+                      <span className="tabular-nums font-medium">{formatCompact(weAvg)}</span>
+                      <Badge
+                        variant={change >= 0 ? "outline" : "destructive"}
+                        className={`tabular-nums text-[10px] ${change >= 0 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 dark:bg-emerald-500/20" : ""}`}
+                      >
+                        {change >= 0 ? "+" : ""}{change}%
+                      </Badge>
+                    </div>
+                  </div>
+                  {source.key !== "pypi" && <Separator className="mt-3" />}
+                </div>
+              );
+            });
+          })()}
         </CardContent>
       </Card>
 
@@ -85,6 +110,9 @@ export function InsightsPanel({ data }: { data: DashboardData }) {
           <CardTitle className="text-sm uppercase tracking-wider">
             Trends
           </CardTitle>
+          <p className="text-muted-foreground text-xs">
+            Total activity across all sources
+          </p>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
