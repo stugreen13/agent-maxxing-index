@@ -61,6 +61,7 @@ export type DashboardData = {
     weekdayAvg: number;
     weekendAvg: number;
     tinkeringScore: number;
+    prevTinkeringScore: number | null;
     maxDay: { date: string; value: number };
     minDay: { date: string; value: number };
     trend: number;
@@ -276,12 +277,50 @@ export function transformDashboardData(rows: RawRow[], now: Date): DashboardData
       ? Math.round(((weekdayAvg - weekendAvg) / weekdayAvg) * 100)
       : 0;
 
-  // Tinkering score: latest total relative to 30d min-max range
-  const minTotal = nonZeroTotals.length ? Math.min(...nonZeroTotals) : 0;
-  const maxTotal = nonZeroTotals.length ? Math.max(...nonZeroTotals) : 0;
-  const range = maxTotal - minTotal;
-  const tinkeringScore =
-    range > 0 ? Math.round(((latestTotal - minTotal) / range) * 100) : 50;
+  // Weighted tinkering score (0–10): GitHub 90%, npm 5%, PyPI 5%
+  // Each source: latest non-zero value / its peak value → weighted sum → scaled to 10.
+  const scoreForDay = (picker: (values: number[], startIdx: number) => number) => {
+    const configs = [
+      { values: daily.map((d) => d.github), weight: 0.9 },
+      { values: daily.map((d) => d.npm), weight: 0.05 },
+      { values: daily.map((d) => d.pypi), weight: 0.05 },
+    ];
+
+    let weighted = 0;
+    let hasData = false;
+
+    for (const { values, weight } of configs) {
+      const peak = Math.max(...values.filter((v) => v > 0), 0);
+      if (peak === 0) continue;
+
+      const val = picker(values, values.length - 1);
+      if (val <= 0) continue;
+
+      hasData = true;
+      weighted += (val / peak) * weight;
+    }
+
+    return hasData ? Math.round(weighted * 100) / 10 : null; // 0–10
+  };
+
+  // Latest non-zero value
+  const findLatest = (values: number[], startIdx: number) => {
+    let i = startIdx;
+    while (i >= 0 && values[i] === 0) i--;
+    return i >= 0 ? values[i] : 0;
+  };
+
+  // Previous non-zero value (one before latest)
+  const findPrev = (values: number[], startIdx: number) => {
+    let i = startIdx;
+    while (i >= 0 && values[i] === 0) i--;
+    i--;
+    while (i >= 0 && values[i] === 0) i--;
+    return i >= 0 ? values[i] : 0;
+  };
+
+  const tinkeringScore = scoreForDay(findLatest) ?? 5;
+  const prevTinkeringScore = scoreForDay(findPrev);
 
   let maxDay = { date: "", value: 0 };
   let minDay = { date: "", value: Infinity };
@@ -293,8 +332,8 @@ export function transformDashboardData(rows: RawRow[], now: Date): DashboardData
   if (minDay.value === Infinity) minDay = { date: "", value: 0 };
 
   const trend =
-    prevTotal > 0
-      ? ((latestTotal - prevTotal) / prevTotal) * 100
+    prevTinkeringScore != null && prevTinkeringScore > 0
+      ? ((tinkeringScore - prevTinkeringScore) / prevTinkeringScore) * 100
       : 0;
 
   // Find spikes (days >20% above monthly average)
@@ -321,7 +360,8 @@ export function transformDashboardData(rows: RawRow[], now: Date): DashboardData
       weekendAvgDrop,
       weekdayAvg,
       weekendAvg,
-      tinkeringScore: Math.max(0, Math.min(100, tinkeringScore)),
+      tinkeringScore: Math.max(0, Math.min(10, tinkeringScore)),
+      prevTinkeringScore: prevTinkeringScore != null ? Math.max(0, Math.min(10, prevTinkeringScore)) : null,
       maxDay,
       minDay,
       trend,

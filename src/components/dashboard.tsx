@@ -50,8 +50,7 @@ export function Dashboard({ data }: { data: DashboardData }) {
       <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
         <TinkeringGauge
           score={data.aggregate.tinkeringScore}
-          latestTotal={data.aggregate.latestTotal}
-          latestTotalLabel={data.aggregate.latestTotalLabel}
+          prevScore={data.aggregate.prevTinkeringScore}
           trend={data.aggregate.trend}
         />
         <SourceCards sources={data.sources} />
@@ -77,6 +76,15 @@ export function Dashboard({ data }: { data: DashboardData }) {
             className="underline underline-offset-2 hover:text-foreground transition-colors"
           >
             @jeff_weinstein
+          </a>
+          . Made by{" "}
+          <a
+            href="https://x.com/stubgreen"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground transition-colors"
+          >
+            @stubgreen
           </a>
           . Refreshes hourly.
         </p>
