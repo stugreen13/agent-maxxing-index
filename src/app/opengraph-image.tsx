@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export const alt = "Agent Maxxing Index — Live index of developer activity across npm, PyPI, and public GitHub repos";
+export const alt = "Agent Maxxing Index — Live developer activity across GitHub, npm, PyPI, and more";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -93,7 +93,7 @@ export default async function OGImage() {
               lineHeight: 1.4,
             }}
           >
-            Live index of developer activity across npm, PyPI, and public GitHub repos
+            Live developer activity across GitHub, npm, PyPI, and more.
           </div>
         </div>
       </div>

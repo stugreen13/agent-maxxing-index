@@ -88,6 +88,26 @@ export function Dashboard({ data }: { data: DashboardData }) {
           </a>
           . Refreshes hourly.
         </p>
+        <div className="mt-3 flex items-center justify-center gap-1.5 font-sans">
+          <span className="text-muted-foreground text-[10px]">Sponsored by</span>
+          <a
+            href="https://instantcli.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="/instantcli-icon.ico"
+              alt="Instant CLI"
+              width={16}
+              height={16}
+              className="rounded-sm"
+            />
+            <span className="text-foreground/70 text-[11px] font-semibold tracking-tight">
+              InstantCLI
+            </span>
+          </a>
+        </div>
       </footer>
     </div>
   );
