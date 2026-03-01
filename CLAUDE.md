@@ -26,7 +26,7 @@ Three metrics, one row per source per day in `daily_metrics` table:
 ## Data Accuracy
 
 - **npm** (`src/lib/sources/npm.ts`): Total package downloads across all of npm. Reports 0 on some US holidays (e.g. Presidents' Day) — this is an npm API gap, not missing installs. Today/tomorrow may also return 0 until npm finalizes counts.
-- **pypi** (`src/lib/sources/pypi.ts`): Uses `with_mirrors` category, so includes mirror traffic. This is the more complete number but higher than direct-only counts.
+- **pypi** (`src/lib/sources/pypi.ts`): Uses `without_mirrors` category to exclude automated mirror syncs. This gives a cleaner developer-activity signal (better weekday/weekend differentiation) though the absolute numbers are lower than `with_mirrors`.
 - **github_commits** (`src/lib/sources/github.ts`): Uses search API `total_count`, which is an approximation for large result sets. Public repos only. Noisiest source — values can fluctuate across queries for the same date.
 
 Use `npm run fix-zeros` to retry any rows stored as 0. Use `npm run backfill` to re-seed the last 30 days (uses `GREATEST` so it won't overwrite good data with zeros).

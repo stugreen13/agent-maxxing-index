@@ -7,7 +7,7 @@ export async function fetchPypiDownloads(): Promise<
   { date: string; value: number }[]
 > {
   const url =
-    "https://pypistats.org/api/packages/__all__/overall?mirrors=true";
+    "https://pypistats.org/api/packages/__all__/overall?mirrors=false";
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -23,7 +23,7 @@ export async function fetchPypiDownloads(): Promise<
     date: string;
     downloads: number;
   }[]) {
-    if (row.category === "with_mirrors") {
+    if (row.category === "without_mirrors") {
       byDate.set(row.date, (byDate.get(row.date) ?? 0) + row.downloads);
     }
   }

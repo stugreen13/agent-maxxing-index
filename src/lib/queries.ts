@@ -26,7 +26,7 @@ export async function getDashboardData() {
   const today = new Date();
   const todayStr = formatDate(today);
   const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
   const yesterdayStr = formatDate(yesterday);
 
   // Fetch current day data from APIs
@@ -127,7 +127,7 @@ export async function getDashboardData() {
 
   // Query last 30 days from database
   const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - 30);
   const cutoff = formatDate(thirtyDaysAgo);
 
   const allRows = await db
@@ -135,5 +135,8 @@ export async function getDashboardData() {
     .from(dailyMetrics)
     .orderBy(desc(dailyMetrics.date));
 
-  return allRows.filter((r) => r.date >= cutoff);
+  return {
+    rows: allRows.filter((r) => r.date >= cutoff),
+    now: today,
+  };
 }
