@@ -3,6 +3,7 @@ config({ path: ".env.local" });
 
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { sql as dsql } from "drizzle-orm";
 import { dailyMetrics } from "../src/lib/db/schema";
 import { fetchNpmDownloads } from "../src/lib/sources/npm";
 import { fetchPypiDownloads } from "../src/lib/sources/pypi";
@@ -79,14 +80,15 @@ async function backfill() {
     })),
   ];
 
-  // Batch insert with upsert
+  // Batch insert with upsert — only overwrite if the new value is higher
+  // This prevents transient zeros from overwriting good data on re-runs
   for (const row of rows) {
     await db
       .insert(dailyMetrics)
       .values(row)
       .onConflictDoUpdate({
         target: [dailyMetrics.date, dailyMetrics.source],
-        set: { value: row.value },
+        set: { value: dsql`GREATEST(daily_metrics.value, EXCLUDED.value)` },
       });
   }
 
