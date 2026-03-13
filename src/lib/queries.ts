@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql as dsql } from "drizzle-orm";
 import { db } from "./db";
 import { dailyMetrics } from "./db/schema";
 import { fetchNpmDownloads } from "./sources/npm";
@@ -39,7 +39,7 @@ export async function getDashboardData() {
         .values({ date: todayStr, source: "npm", value: npmData[0].value })
         .onConflictDoUpdate({
           target: [dailyMetrics.date, dailyMetrics.source],
-          set: { value: npmData[0].value },
+          set: { value: dsql`GREATEST(daily_metrics.value, EXCLUDED.value)` },
         });
     }
 
@@ -52,7 +52,7 @@ export async function getDashboardData() {
         .values({ date: todayStr, source: "pypi", value: pypiToday.value })
         .onConflictDoUpdate({
           target: [dailyMetrics.date, dailyMetrics.source],
-          set: { value: pypiToday.value },
+          set: { value: dsql`GREATEST(daily_metrics.value, EXCLUDED.value)` },
         });
     }
 
@@ -67,7 +67,7 @@ export async function getDashboardData() {
       })
       .onConflictDoUpdate({
         target: [dailyMetrics.date, dailyMetrics.source],
-        set: { value: githubToday.value },
+        set: { value: dsql`GREATEST(daily_metrics.value, EXCLUDED.value)` },
       });
 
     // Backfill yesterday if missing
@@ -88,7 +88,7 @@ export async function getDashboardData() {
           })
           .onConflictDoUpdate({
             target: [dailyMetrics.date, dailyMetrics.source],
-            set: { value: npmYesterday[0].value },
+            set: { value: dsql`GREATEST(daily_metrics.value, EXCLUDED.value)` },
           });
       }
 
@@ -103,7 +103,7 @@ export async function getDashboardData() {
           })
           .onConflictDoUpdate({
             target: [dailyMetrics.date, dailyMetrics.source],
-            set: { value: pypiYesterday.value },
+            set: { value: dsql`GREATEST(daily_metrics.value, EXCLUDED.value)` },
           });
       }
 
@@ -117,7 +117,7 @@ export async function getDashboardData() {
         })
         .onConflictDoUpdate({
           target: [dailyMetrics.date, dailyMetrics.source],
-          set: { value: githubYesterday.value },
+          set: { value: dsql`GREATEST(daily_metrics.value, EXCLUDED.value)` },
         });
     }
   } catch (err) {
